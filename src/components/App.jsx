@@ -7,6 +7,8 @@ class App extends React.Component {
       nowPlaying: window.exampleVideoData[0]
     };
 
+    this.handleSearchDebounced = _.debounce(this.handleSearch, 500);
+
   }
 
   playVideo(video) {
@@ -15,12 +17,39 @@ class App extends React.Component {
     });
   }
 
+  updateVideos(videos) {
+    this.setState({
+      nowPlaying: videos[0],
+      videos: videos
+    });
+  }
+
+  handleSearch() {
+    var searchString = $('.form-control').val();
+    // $('.form-control').val('');
+    var searchObject = {
+      max: 5,
+      key: window.YOUTUBE_API_KEY,
+      query: searchString || 'react javascript'
+    };
+    this.props.searchYouTube(searchObject, this.updateVideos.bind(this));
+  }
+
+  searchClick() {
+    this.handleSearch();
+    $('.form-control').val('');
+  }
+
+  componentDidMount() {
+    this.handleSearch();
+  }
+
   render() {
     return (
       <div>
         <nav className="navbar">
           <div className="col-md-6 offset-md-3">
-            <Search />
+            <Search updateVideos={this.updateVideos.bind(this)} search={this.handleSearchDebounced.bind(this)} searchClick={this.searchClick.bind(this)}/>
           </div>
         </nav>
         <div className="row">
